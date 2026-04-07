@@ -1,16 +1,16 @@
-# UAT: deploy on merge into develop (or manual). GitHub Environment "uat".
+# UAT: deploy on merge into uat (or manual). GitHub Environment "uat".
 name: SF Delta · UAT · deploy
 
 on:
   pull_request:
     types: [closed]
-    branches: [develop]
+    branches: [uat]
     paths-ignore:
       - '.github/workflows/**'
   workflow_dispatch:
 
 concurrency:
-  group: sf-uat-deploy-${{ github.repository }}-develop
+  group: sf-uat-deploy-${{ github.repository }}-uat
   cancel-in-progress: false
 
 run-name: Deploy [UAT] ${{ github.event_name == 'workflow_dispatch' && 'manual' || format('PR {0}', github.event.pull_request.number) }} · ${{ github.sha }}
@@ -26,7 +26,7 @@ jobs:
       contents: read
     env:
       SF_CLI_VERSION: ${{ vars.SF_CLI_VERSION != '' && vars.SF_CLI_VERSION || '2.100.0' }}
-      BUILD_SOURCEBRANCH: ${{ github.event_name == 'workflow_dispatch' && format('refs/heads/{0}', 'develop') || format('refs/heads/{0}', github.base_ref) }}
+      BUILD_SOURCEBRANCH: ${{ github.event_name == 'workflow_dispatch' && format('refs/heads/{0}', 'uat') || format('refs/heads/{0}', github.base_ref) }}
       SF_JWT_PRIVATE_KEY: ${{ secrets.SF_JWT_PRIVATE_KEY }}
       SF_USERNAME: ${{ secrets.SF_USERNAME }}
       SF_IS_DEV_HUB: ${{ secrets.SF_IS_DEV_HUB }}
@@ -38,7 +38,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && 'develop' || github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'uat' || github.event.pull_request.merge_commit_sha }}
 
       - uses: ./.github/workflows/reusable/steps/deploy_delta
         with:
